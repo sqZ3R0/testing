@@ -11,11 +11,10 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #000000; /* Solid black background */
+            background-color: #000000; 
             overflow: hidden;
         }
 
-        /* Button styling */
         .btn {
             display: flex;
             justify-content: center;
@@ -45,10 +44,10 @@
         }
 
         .btn:hover {
-            transform: scale(1.1);  /* Scale the button smoothly */
-            width: 22rem;  /* Increased width on hover */
-            height: 4.5rem;  /* Increased height on hover */
-            border-width: 6px;  /* Increased border width on hover */
+            transform: scale(1.1); 
+            width: 22rem;  
+            height: 4.5rem;  
+            border-width: 6px;  
         }
 
         #container-stars {
@@ -142,10 +141,10 @@
     <script>
         document.getElementById('redirectButton').addEventListener('click', function() {
             // Перенаправление на указанный сайт
-            window.location.href = 'https://sqz3r0.github.io/14valentinedayrus/'; // Укажите ваш URL
+            window.location.href = 'https://sqz3r0.github.io/14valentinedayrus/'; 
         });
 
-        // Comet and star animation using canvas
+        
         const canvas = document.getElementById("comet-canvas");
         const ctx = canvas.getContext("2d");
 
@@ -155,55 +154,55 @@
         const comets = [];
         const stars = [];
 
-        // Create comet object
+        
         function Comet(x, y, size, speed, opacity) {
             this.x = x;
             this.y = y;
             this.size = size;
             this.speed = speed;
             this.opacity = opacity;
-            this.trail = [];  // Stores the trail of the comet
+            this.trail = [];  
         }
 
-        // Create star object
+        
         function Star(x, y, speed, size, opacity, color) {
             this.x = x;
             this.y = y;
             this.speed = speed;
             this.size = size;
             this.opacity = opacity;
-            this.color = color; // Color of the star (white or yellow)
+            this.color = color; 
         }
 
-        // Generate new comet
+        
         function generateComet() {
-            const x = Math.random() * canvas.width; // Random starting position
-            const y = Math.random() * canvas.height; // Random vertical position
-            const size = Math.random() * 2 + 1; // Small size for the comet
-            const speed = Math.random() * 5 + 5; // Super fast motion for comets
-            const opacity = Math.random() * 0.5 + 0.5; // Random opacity
+            const x = Math.random() * canvas.width;  
+            const y = Math.random() * canvas.height; 
+            const size = Math.random() * 2 + 1; 
+            const speed = Math.random() * 5 + 5; 
+            const opacity = Math.random() * 0.5 + 0.5; 
             comets.push(new Comet(x, y, size, speed, opacity));
         }
 
-        // Generate new star with optional yellow color
+
         function generateStar() {
             const x = Math.random() * canvas.width;
             const y = Math.random() * canvas.height;
-            const speed = Math.random() * 0.2 + 0.05; // Slow speed
-            const size = Math.random() * 2 + 0.5; // Some bigger stars
-            const opacity = Math.random() * 0.5 + 0.3; // Low opacity
-            const color = Math.random() > 0.7 ? 'yellow' : 'white'; // Randomly assign yellow to some stars
+            const speed = Math.random() * 0.2 + 0.05; 
+            const size = Math.random() * 2 + 0.5;
+            const opacity = Math.random() * 0.5 + 0.3;
+            const color = Math.random() > 0.7 ? 'yellow' : 'white';
             stars.push(new Star(x, y, speed, size, opacity, color));
         }
 
-        // Draw all comets (with trail and small round shape)
+        
         function drawComets() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             for (let i = 0; i < comets.length; i++) {
                 const comet = comets[i];
                 
-                // Draw comet trail (shorter trail)
+                
                 ctx.beginPath();
                 ctx.moveTo(comet.x, comet.y);
                 for (let j = 0; j < comet.trail.length; j++) {
@@ -214,22 +213,22 @@
                 ctx.lineWidth = 1;
                 ctx.stroke();
                 
-                // Add current position to trail (shorter trail length)
+                
                 comet.trail.push({ x: comet.x, y: comet.y });
-                if (comet.trail.length > 5) { // Shorter trail
+                if (comet.trail.length > 5) { 
                     comet.trail.shift();
                 }
 
-                // Draw comet body (small point)
+            
                 ctx.beginPath();
-                ctx.arc(comet.x, comet.y, comet.size, 0, Math.PI * 2); // Point shape
+                ctx.arc(comet.x, comet.y, comet.size, 0, Math.PI * 2);
                 ctx.fillStyle = `rgba(255, 255, 255, ${comet.opacity})`;
                 ctx.fill();
 
-                comet.x += comet.speed; // Move comet horizontally to the right
-                comet.y -= comet.speed * 2; // Move comet upwards at high speed
+                comet.x += comet.speed; 
+                comet.y -= comet.speed * 2; 
 
-                // Remove comet if it goes off the screen
+                
                 if (comet.x > canvas.width || comet.y < 0) {
                     comets.splice(i, 1);
                     i--;
@@ -237,7 +236,7 @@
             }
         }
 
-        // Draw all stars
+        
         function drawStars() {
             for (let i = 0; i < stars.length; i++) {
                 const star = stars[i];
@@ -246,10 +245,10 @@
                 ctx.fillStyle = star.color === 'yellow' ? `rgba(255, 255, 0, ${star.opacity})` : `rgba(255, 255, 255, ${star.opacity})`;
                 ctx.fill();
 
-                star.x += star.speed + Math.random() * 0.2 - 0.1; // Random small movement
+                star.x += star.speed + Math.random() * 0.2 - 0.1; 
                 star.y += star.speed + Math.random() * 0.2 - 0.1;
 
-                // Remove star if it goes off the screen
+                
                 if (star.x > canvas.width || star.y > canvas.height || star.x < 0 || star.y < 0) {
                     stars.splice(i, 1);
                     i--;
@@ -257,16 +256,16 @@
             }
         }
 
-        // Update the animation
+        
         function update() {
-            if (Math.random() < 0.03) generateComet(); // Less frequent comet generation
-            if (Math.random() < 0.1) generateStar(); // Slow star generation
+            if (Math.random() < 0.03) generateComet();
+            if (Math.random() < 0.1) generateStar();
             drawComets();
             drawStars();
             requestAnimationFrame(update);
         }
 
-        update(); // Start the comet and star animation
+        update();
     </script>
 </body>
 </html>
