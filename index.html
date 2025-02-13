@@ -3,54 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Button Transition</title>
+    <title>Button Redirect with Comets</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
+        html, body {
             margin: 0;
-            height: 100vh;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            background-color: #000000;
+            background-color: #000000; /* Solid black background */
             overflow: hidden;
-            position: relative;
         }
 
-        #main-button {
-            background-color: #333;
-            color: rgb(226, 14, 180);
-            padding: 15px 30px;
-            font-size: 1.2rem;
-            border: none;
-            border-radius: 5px;
+        /* Button styling */
+        .btn {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 20rem;
+            height: 4rem;
+            background-size: 300% 300%;
             cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 10; /* Keep the button on top */
+            backdrop-filter: blur(1rem);
+            border-radius: 5rem;
+            transition: 0.5s;
+            animation: gradient_301 7s ease infinite;
+            border: double 4px transparent;
+            background-image: linear-gradient(#212121, #212121),
+                linear-gradient(
+                    137.48deg,
+                    #ffdb3b 10%,
+                    #fe53bb 45%,
+                    #8f51ea 67%,
+                    #0044ff 87%
+                );
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            position: relative;
+            overflow: hidden;
+            box-sizing: border-box;
         }
 
-        #main-button:hover {
-            background-color: #555;
+        .btn:hover {
+            transform: scale(1.1);  /* Scale the button smoothly */
+            width: 22rem;  /* Increased width on hover */
+            height: 4.5rem;  /* Increased height on hover */
+            border-width: 6px;  /* Increased border width on hover */
         }
 
-        #overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
+        #container-stars {
+            position: absolute;
+            z-index: -1;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.7);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.5s ease;
+            overflow: hidden;
+            transition: 0.5s;
+            backdrop-filter: blur(1rem);
+            border-radius: 5rem;
         }
 
-        .fade-in {
-            opacity: 1;
-            pointer-events: all;
+        strong {
+            z-index: 2;
+            font-family: "Avalors Personal Use";
+            font-size: 16px;
+            letter-spacing: 5px;
+            color: #ffffff;
+            text-shadow: 0 0 4px white;
         }
 
-        /* Canvas for the comet animation */
+        #glow {
+            position: absolute;
+            display: flex;
+            width: 18rem;
+        }
+
+        .circle {
+            width: 100%;
+            height: 30px;
+            filter: blur(2rem);
+            animation: pulse_3011 4s infinite;
+            z-index: -1;
+        }
+
+        .circle:nth-of-type(1) {
+            background: rgba(254, 83, 186, 0.636);
+        }
+
+        .circle:nth-of-type(2) {
+            background: rgba(142, 81, 234, 0.704);
+        }
+
+        .btn:hover #container-stars {
+            z-index: 1;
+            background-color: #212121;
+        }
+
+        .btn:hover {
+            transform: scale(1.1);
+        }
+
+        .btn:active {
+            border: double 8px #fe53bb;
+            background-origin: border-box;
+            background-clip: content-box, border-box;
+            animation: none;
+        }
+
+        .btn:active .circle {
+            background: #fe53bb;
+        }
+
+        /* Comet canvas */
         #comet-canvas {
             position: absolute;
             top: 0;
@@ -59,15 +122,30 @@
             height: 100%;
             pointer-events: none;
         }
+
     </style>
 </head>
 <body>
-    <button id="main-button">Go to Main Page</button>
+    <button class="btn" id="redirectButton">
+        <strong>ТЫКНИ<3</strong>
+        <div id="container-stars">
+            <div id="stars"></div>
+        </div>
+        <div id="glow">
+            <div class="circle"></div>
+            <div class="circle"></div>
+        </div>
+    </button>
     <div id="overlay"></div>
     <canvas id="comet-canvas"></canvas>
 
     <script>
-        // Comet animation using canvas
+        document.getElementById('redirectButton').addEventListener('click', function() {
+            // Перенаправление на указанный сайт
+            window.location.href = 'https://sqz3r0.github.io/14valentinedayrus/'; // Укажите ваш URL
+        });
+
+        // Comet and star animation using canvas
         const canvas = document.getElementById("comet-canvas");
         const ctx = canvas.getContext("2d");
 
@@ -75,43 +153,105 @@
         canvas.height = window.innerHeight;
 
         const comets = [];
+        const stars = [];
 
         // Create comet object
-        function Comet(x, y, length, speed, opacity) {
+        function Comet(x, y, size, speed, opacity) {
             this.x = x;
             this.y = y;
-            this.length = length;
+            this.size = size;
             this.speed = speed;
             this.opacity = opacity;
+            this.trail = [];  // Stores the trail of the comet
+        }
+
+        // Create star object
+        function Star(x, y, speed, size, opacity, color) {
+            this.x = x;
+            this.y = y;
+            this.speed = speed;
+            this.size = size;
+            this.opacity = opacity;
+            this.color = color; // Color of the star (white or yellow)
         }
 
         // Generate new comet
         function generateComet() {
-            const x = Math.random() * canvas.width;
-            const y = -10; // Start above the canvas
-            const length = Math.random() * 2 + 3; // Random comet length
-            const speed = Math.random() * 2 + 1; // Random speed
+            const x = Math.random() * canvas.width; // Random starting position
+            const y = Math.random() * canvas.height; // Random vertical position
+            const size = Math.random() * 2 + 1; // Small size for the comet
+            const speed = Math.random() * 5 + 5; // Super fast motion for comets
             const opacity = Math.random() * 0.5 + 0.5; // Random opacity
-            comets.push(new Comet(x, y, length, speed, opacity));
+            comets.push(new Comet(x, y, size, speed, opacity));
         }
 
-        // Draw all comets
+        // Generate new star with optional yellow color
+        function generateStar() {
+            const x = Math.random() * canvas.width;
+            const y = Math.random() * canvas.height;
+            const speed = Math.random() * 0.2 + 0.05; // Slow speed
+            const size = Math.random() * 2 + 0.5; // Some bigger stars
+            const opacity = Math.random() * 0.5 + 0.3; // Low opacity
+            const color = Math.random() > 0.7 ? 'yellow' : 'white'; // Randomly assign yellow to some stars
+            stars.push(new Star(x, y, speed, size, opacity, color));
+        }
+
+        // Draw all comets (with trail and small round shape)
         function drawComets() {
             ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
-            ctx.lineWidth = 1;
-            ctx.strokeStyle = 'white';
 
             for (let i = 0; i < comets.length; i++) {
                 const comet = comets[i];
+                
+                // Draw comet trail (shorter trail)
                 ctx.beginPath();
                 ctx.moveTo(comet.x, comet.y);
-                ctx.lineTo(comet.x + comet.length, comet.y + comet.length);
+                for (let j = 0; j < comet.trail.length; j++) {
+                    const trailPoint = comet.trail[j];
+                    ctx.lineTo(trailPoint.x, trailPoint.y);
+                }
+                ctx.strokeStyle = `rgba(255, 255, 255, ${comet.opacity})`;
+                ctx.lineWidth = 1;
                 ctx.stroke();
-                comet.y += comet.speed;
+                
+                // Add current position to trail (shorter trail length)
+                comet.trail.push({ x: comet.x, y: comet.y });
+                if (comet.trail.length > 5) { // Shorter trail
+                    comet.trail.shift();
+                }
 
-                // Remove comet if it goes out of canvas
-                if (comet.y > canvas.height) {
+                // Draw comet body (small point)
+                ctx.beginPath();
+                ctx.arc(comet.x, comet.y, comet.size, 0, Math.PI * 2); // Point shape
+                ctx.fillStyle = `rgba(255, 255, 255, ${comet.opacity})`;
+                ctx.fill();
+
+                comet.x += comet.speed; // Move comet horizontally to the right
+                comet.y -= comet.speed * 2; // Move comet upwards at high speed
+
+                // Remove comet if it goes off the screen
+                if (comet.x > canvas.width || comet.y < 0) {
                     comets.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Draw all stars
+        function drawStars() {
+            for (let i = 0; i < stars.length; i++) {
+                const star = stars[i];
+                ctx.beginPath();
+                ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = star.color === 'yellow' ? `rgba(255, 255, 0, ${star.opacity})` : `rgba(255, 255, 255, ${star.opacity})`;
+                ctx.fill();
+
+                star.x += star.speed + Math.random() * 0.2 - 0.1; // Random small movement
+                star.y += star.speed + Math.random() * 0.2 - 0.1;
+
+                // Remove star if it goes off the screen
+                if (star.x > canvas.width || star.y > canvas.height || star.x < 0 || star.y < 0) {
+                    stars.splice(i, 1);
                     i--;
                 }
             }
@@ -119,24 +259,14 @@
 
         // Update the animation
         function update() {
-            if (Math.random() < 0.05) generateComet(); // Randomly generate comets
+            if (Math.random() < 0.03) generateComet(); // Less frequent comet generation
+            if (Math.random() < 0.1) generateStar(); // Slow star generation
             drawComets();
+            drawStars();
             requestAnimationFrame(update);
         }
 
-        update(); // Start the comet animation
-
-        // Button functionality
-        document.getElementById("main-button").addEventListener("click", function() {
-            // Add overlay animation
-            const overlay = document.getElementById("overlay");
-            overlay.classList.add("fade-in");
-
-            // Transition after animation delay
-            setTimeout(function() {
-                window.location.href = "https://sqz3r0.github.io/14valentinedayrus/"; // Main page URL
-            }, 1000); // Adjust timing for overlay fade
-        });
+        update(); // Start the comet and star animation
     </script>
 </body>
 </html>
