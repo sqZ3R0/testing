@@ -14,6 +14,7 @@
             align-items: center;
             background-color: #000000;
             overflow: hidden;
+            position: relative;
         }
 
         #main-button {
@@ -25,6 +26,7 @@
             border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s ease;
+            z-index: 10; /* Keep the button on top */
         }
 
         #main-button:hover {
@@ -47,22 +49,93 @@
             opacity: 1;
             pointer-events: all;
         }
+
+        /* Canvas for the comet animation */
+        #comet-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body>
     <button id="main-button">Go to Main Page</button>
     <div id="overlay"></div>
+    <canvas id="comet-canvas"></canvas>
 
     <script>
+        // Comet animation using canvas
+        const canvas = document.getElementById("comet-canvas");
+        const ctx = canvas.getContext("2d");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const comets = [];
+
+        // Create comet object
+        function Comet(x, y, length, speed, opacity) {
+            this.x = x;
+            this.y = y;
+            this.length = length;
+            this.speed = speed;
+            this.opacity = opacity;
+        }
+
+        // Generate new comet
+        function generateComet() {
+            const x = Math.random() * canvas.width;
+            const y = -10; // Start above the canvas
+            const length = Math.random() * 2 + 3; // Random comet length
+            const speed = Math.random() * 2 + 1; // Random speed
+            const opacity = Math.random() * 0.5 + 0.5; // Random opacity
+            comets.push(new Comet(x, y, length, speed, opacity));
+        }
+
+        // Draw all comets
+        function drawComets() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear canvas
+            ctx.lineWidth = 1;
+            ctx.strokeStyle = 'white';
+
+            for (let i = 0; i < comets.length; i++) {
+                const comet = comets[i];
+                ctx.beginPath();
+                ctx.moveTo(comet.x, comet.y);
+                ctx.lineTo(comet.x + comet.length, comet.y + comet.length);
+                ctx.stroke();
+                comet.y += comet.speed;
+
+                // Remove comet if it goes out of canvas
+                if (comet.y > canvas.height) {
+                    comets.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+
+        // Update the animation
+        function update() {
+            if (Math.random() < 0.05) generateComet(); // Randomly generate comets
+            drawComets();
+            requestAnimationFrame(update);
+        }
+
+        update(); // Start the comet animation
+
+        // Button functionality
         document.getElementById("main-button").addEventListener("click", function() {
-            // Добавление анимации затемнения
+            // Add overlay animation
             const overlay = document.getElementById("overlay");
             overlay.classList.add("fade-in");
 
-            // Плавный переход на основную страницу через несколько секунд
+            // Transition after animation delay
             setTimeout(function() {
-                window.location.href = "https://sqz3r0.github.io/14valentinedayrus/"; // Укажите URL вашей основной страницы
-            }, 1000); // Время ожидания для анимации затемнения
+                window.location.href = "https://sqz3r0.github.io/14valentinedayrus/"; // Main page URL
+            }, 1000); // Adjust timing for overlay fade
         });
     </script>
 </body>
